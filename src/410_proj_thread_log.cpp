@@ -13,12 +13,14 @@
 
 using namespace std;
 
+//NOTE: you should have no mutexes in this file
 //TODO linker errors?  Did you include the pthread library?   And set the proper dialect?
 //TODO declare globals
 
 /***
- * 
- * TODO log info to both file and console (you can do this with 2 Logger objects)
+ * TODO log info to both file and console. You can do this with 2 Logger objects. 
+ * 		Note:  These logger objects cannot be local variables, they must be shared 
+ * 		amongst the threads. (why?)
  * TODO this function should run until main (or another thread) asks it to quit
  * @param info  to log
  * returns void
