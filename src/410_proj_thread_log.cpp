@@ -1,9 +1,7 @@
 //============================================================================
 // Name        : 410_proj_thread_log.cpp
-// Author      : 
-// Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
+// Author      : William Reames
+// Version     : 2021.04.09
 //============================================================================
 #include <thread>
 #include <iostream>
@@ -13,32 +11,50 @@
 
 using namespace std;
 
-//NOTE: you should have no mutexes in this file
-//TODO linker errors?  Did you include the pthread library?   And set the proper dialect?
-//TODO declare globals
+//Declare globals
+bool bDoWork = true;
+Logger logConsole(LOG_CONSOLE);
+Logger logFile(LOG_FILE);
 
 /***
- * TODO log info to both file and console. You can do this with 2 Logger objects. 
+ * Log info to both file and console. You can do this with 2 Logger objects.
  * 		Note:  These logger objects cannot be local variables, they must be shared 
  * 		amongst the threads. (why?)
- * TODO this function should run until main (or another thread) asks it to quit
+ * This function should run until main (or another thread) asks it to quit
  * @param info  to log
  * returns void
  */
-void fun(string info){
-
+void fun(string info) {
+	while (bDoWork) {
+		//Log to console and file
+		logConsole.Log(info);
+		logFile.Log(info);
+	}
 }
 int main() {
-	
-	//TODO start as many threads as you have cores (see std::thread::hardware_concurrency())
-	//TODO save these threads in a vector
 
-	//TODO let threads run a bit (5 seconds)
+	//Start as many threads as you have cores (see std::thread::hardware_concurrency())
+	int numCores = thread::hardware_concurrency();
+
+	//Save these threads in a vector
+	vector<thread> threads;
+	for (int i = 0; i < numCores; i++) {
+		string inputStr = "Testing thread logging (" + to_string(i) + ")";
+		threads.push_back(thread(fun, inputStr));
+	}
+
+	//Let threads run a bit (5 seconds)
 	this_thread::sleep_for(chrono::milliseconds(5000));
-	
-	//TODO ask them all to stop
-	
-	//TODO wait for all threads to finish
-	
+
+	//Ask them all to stop
+	bDoWork = false;
+
+	//Wait for all threads to finish
+	for (auto &t : threads) {
+		t.join();
+	}
+
+	cout << "All threads done!" << endl;
+
 	return 0;
 }
